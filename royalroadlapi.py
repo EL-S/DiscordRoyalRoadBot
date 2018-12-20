@@ -16,6 +16,11 @@ running = False
 directory = "Error/"
 
 def get_fiction(fiction_id,directory="Fictions/"):
+    try:
+        int(fiction_id)
+    except:
+        search_term = fiction_id
+        fiction_id = search_fiction(search_term)
     fiction_object = get_fiction_object(fiction_id)
     get_fiction_info(fiction_object)
     if chapter_links != []:
@@ -45,6 +50,27 @@ def get_fictions(fiction_id_start=1,fiction_id_end=None,directory="Fictions/"):
             print("Invalid Range.")
     except:
         print("Please use valid numbers!")
+
+def search_fiction(search_term):
+    search_term = search_term.replace(" ","+")
+    url = "https://www.royalroad.com/fictions/search?name="+str(search_term)
+    print(url)
+    try:
+        http_client = httpclient.HTTPClient()
+        html = http_client.fetch(url).body.decode('utf-8')
+        soup = BeautifulSoup(html, "lxml")
+        #print(soup)
+        try:
+            fiction_id = soup.find("div", attrs={"class":"col-sm-8 col-xs-10 search-content"}).find("input").get("id").split("-")[1]
+        except Exception as e:
+            print(e)
+        if fiction_id:
+            return fiction_id
+        else:
+            return None
+    except httpclient.HTTPError as e:
+        if e.code != 404: #don't know the exact exception code
+            search_fiction(search_term)
 
 def get_fiction_object(fiction_id):
     global url,title,cover_image,author,description,genres,ratings,stats,chapter_links,chapter_amount
@@ -231,17 +257,18 @@ def save_to_hdd(fiction_html,chapters_html,chapters_downloaded,directory="Fictio
             genre_html += " | " + genre
     stats_html = "</p><p><b>Total Views:</b> " + stats[0] + "<b> | Average Views:</b> " + stats[1] + "<b> | Followers:</b> " + stats[2] + "<b> | Favorites:</b> " + stats[3] + "<b> | Pages:</b> " + stats[4]
     statistics = "<b>Chapters:</b> " + str(chapter_amount) + "<b> | Overall Score:</b> " + ratings[0] + "<b> | Best Score:</b> " + ratings[1] + "<b> | Ratings:</b> " + ratings[2] + "</p><p><b>Style Score:</b> " + ratings[3] + "<b> | Story Score:</b> " + ratings[4] + "<b> | Character Score:</b> " + ratings[5] + "<b> | Grammar Score:</b> " + ratings[6] + stats_html + "</p>"
+    title = re.sub(r'[<>]',"",title).strip() #to prevent breaking the xhtml because it does
     data = "<center><img src='../cover.jpg'></img><p><b><h1> \"<a href='" + url + "'>" + str(title) + "</a>\" by \"" + str(author) + "\"</h1></b></p><p><b>" + genre_html + "</b></p><p>" + statistics + "<p><h2>Last updated: " + time + "</h2></p></center><p><h3>Description:</h3> " + str(description) + "</p>"# + fiction_html
-    title_clean = re.sub(r'[\\/*?:"<>|]',"",title)
+    title_clean = re.sub(r'[\\/*?:"<>|]',"",title).strip()
     try:
         if author[-1] == "?":
             author = author.replace("?","qstnmrk")
     except:
         author = "Unknown"
-    author_clean = re.sub(r'[\\/*?:"<>|]',"",author)
+    author_clean = re.sub(r'[\\/*?:"<>|]',"",author).strip()
     try:
         if author_clean[-1] == ".":
-            author_clean = author_clean.replace(".","dot")
+            author_clean = author_clean.replace(".","dot").strip()
     except:
         author_clean = "Unknown"
     print("Saving EPUB: " + directory + title_clean + " - " + author_clean + ".epub")

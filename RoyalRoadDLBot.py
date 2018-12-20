@@ -15,16 +15,14 @@ async def on_message(message):
         flag_upload = False
         flag_error = False
         try:
-            fiction_id = int(message.content.split(" ")[1])
+            fiction_term = " ".join(message.content.split(" ")[1:])
             try:
                 msg = '{0.author.mention} Retrieving now!'.format(message)
                 await client.send_message(message.channel, msg)
-                print("Initiating download")
-                final_location = get_fiction(fiction_id,directory="Fiction - Epubs/")
+                final_location = get_fiction(fiction_term,directory="Fiction - Epubs/")
                 if final_location != None:
-                    print("Download Complete")
-                    #msg = '{0.author.mention} Downloaded Successfully!'.format(message)
-                    #await client.send_message(message.channel, msg)
+                    msg = '{0.author.mention} Downloaded Successfully!'.format(message)
+                    await client.send_message(message.channel, msg)
                     print("Uploading File")
                     print(final_location)
                     await client.send_file(message.channel, final_location)
