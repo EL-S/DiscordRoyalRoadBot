@@ -51,6 +51,18 @@ def get_fictions(fiction_id_start=1,fiction_id_end=None,directory="Fictions/"):
     except:
         print("Please use valid numbers!")
 
+def find_latest_fiction_id():
+    try:
+        http_client = httpclient.HTTPClient()
+        url = "https://www.royalroad.com/fictions/new-releases"
+        html = http_client.fetch(url).body.decode('utf-8')
+        soup = BeautifulSoup(html, "lxml")
+        latest_fiction_id = int(soup.find("a",attrs={"class":"font-red-sunglo bold"}).get("href").split("/")[2])
+        return latest_fiction_id
+    except httpclient.HTTPError as e:
+        if e.code != 404: #don't know the exact exception code
+            find_latest_fiction_id()
+
 def search_fiction(search_term):
     search_term = search_term.replace(" ","+")
     url = "https://www.royalroad.com/fictions/search?name="+str(search_term)
@@ -131,18 +143,6 @@ def get_fiction_info(fiction_obj): #finished
 def get_fiction_id(soup):
     fiction_id = soup.find("input", attrs={"name":"id"}).get("value")
     return fiction_id
-
-def find_latest_fiction_id():
-    try:
-        http_client = httpclient.HTTPClient()
-        url = "https://www.royalroad.com/fictions/new-releases"
-        html = http_client.fetch(url).body.decode('utf-8')
-        soup = BeautifulSoup(html, "lxml")
-        latest_fiction_id = int(soup.find("a",attrs={"class":"font-red-sunglo bold"}).get("href").split("/")[2])
-        return latest_fiction_id
-    except httpclient.HTTPError as e:
-        if e.code != 404: #don't know the exact exception code
-            find_latest_fiction_id()
 
 def check_active_fiction(soup,fiction_id):
     not_active = soup.find('div', attrs={'class': 'number font-red-sunglo'})
@@ -412,8 +412,6 @@ def save_to_hdd(fiction_html,chapters_html,chapters_downloaded,directory="Fictio
         if image_data == None:
             image_data = download_image_data("http://www.royalroadl.com/Content/Images/rr-placeholder.jpg")
     else:
-##        image_data = cover_image.split(",")[1]
-##        image_data += "=" * ((4 - len(image_data) % 4) % 4)
         try:
             image_data = base64.b64decode(image_data)
         except:
@@ -443,8 +441,6 @@ def download_image_data(cover_image):
                 download_image_data(cover_image)
         except:
             download_image_data(cover_image) 
-
-
 
 def compress_and_convert_to_epub(directory,folder_location,output_location):
     #print(folder_location)
@@ -488,6 +484,7 @@ def addFolderToZip(zip_file_epub, folder_location):
         elif os.path.isdir(full_path):
             #print('Entering folder: ' + str(full_path))
             addFolderToZip(zip_file_epub, full_path)
+
 def handle_chapter_response(response):
     global i,chapters_downloaded,chapters_html,fiction_html,directory,http_client
     if response.code == 599:
