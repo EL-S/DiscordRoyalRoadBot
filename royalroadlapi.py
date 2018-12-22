@@ -23,6 +23,13 @@ def get_fiction(fiction_id,directory="Fictions/"):
         fiction_id = search_fiction(search_term)
     fiction_object = get_fiction_object(fiction_id)
     get_fiction_info(fiction_object)
+    if chapter_amount == 1:
+        plural = ""
+    elif chapter_amount == 0:
+        return None
+    else:
+        plural = "s"
+    print("Downloading ({} chapter".format(chapter_amount) + plural + ") ID {}: ".format(fiction_id) + title + " - " + author + ".epub")
     if chapter_links != []:
         final_location = get_chapters(chapter_links,directory)
         return final_location
@@ -84,6 +91,42 @@ def search_fiction(search_term):
         if e.code != 404: #don't know the exact exception code
             search_fiction(search_term)
 
+def get_fiction_location(fiction_id,directory="Fictions/"):
+    try:
+        int(fiction_id)
+    except:
+        search_term = fiction_id
+        fiction_id = search_fiction(search_term)
+    fiction_object = get_fiction_object(fiction_id)
+    get_fiction_info(fiction_object)
+    try:
+        final_location = determine_file_location(title,directory,author)
+    except:
+        final_location = None
+    return final_location
+
+def determine_file_location(title,directory,author):
+    title = re.sub(r'[<>]',"",title).strip() #to prevent breaking the xhtml because it does
+    title_clean = re.sub(r'[\\/*?:"<>|]',"",title).strip()
+    try:
+        if author[-1] == "?":
+            author = author.replace("?","qstnmrk")
+    except:
+        author = "Unknown"
+    author_clean = re.sub(r'[\\/*?:"<>|]',"",author).strip()
+    try:
+        if author_clean[-1] == ".":
+            author_clean = author_clean.replace(".","dot").strip()
+    except:
+        author_clean = "Unknown"
+    name = title_clean + " - " + author_clean
+    folder_name = name + "/"
+    folder_location = directory + folder_name
+    new_zip_name = folder_location.split("/")[-2]
+    output_location = directory+new_zip_name
+    final_location = output_location+".epub"
+    return final_location
+
 def get_fiction_object(fiction_id):
     global url,title,cover_image,author,description,genres,ratings,stats,chapter_links,chapter_amount
     try:
@@ -128,13 +171,6 @@ def get_fiction_info(fiction_obj): #finished
         stats = get_fiction_statistics(soup)
         chapter_links = get_chapter_links(soup)
         chapter_amount = len(chapter_links)
-        if chapter_amount == 1:
-            plural = ""
-        elif chapter_amount == 0:
-            return None
-        else:
-            plural = "s"
-        print("Downloading ({} chapter".format(chapter_amount) + plural + ") ID {}: ".format(fiction_id) + title + " - " + author + ".epub")
         #print(url,title,cover_image,author,description,ratings,chapter_links,chapter_amount)
         return url,title,cover_image,author,description,genres,ratings,stats,chapter_links,chapter_amount
     else:
@@ -484,7 +520,7 @@ def addFolderToZip(zip_file_epub, folder_location):
         elif os.path.isdir(full_path):
             #print('Entering folder: ' + str(full_path))
             addFolderToZip(zip_file_epub, full_path)
-
+            
 def handle_chapter_response(response):
     global i,chapters_downloaded,chapters_html,fiction_html,directory,http_client
     if response.code == 599:
