@@ -106,25 +106,19 @@ def get_fiction_location(fiction_id,directory="Fictions/"):
     return final_location
 
 def determine_file_location(title,directory,author):
-    title = re.sub(r'[<>]',"",title).strip() #to prevent breaking the xhtml because it does
-    title_clean = re.sub(r'[\\/*?:"<>|]',"",title).strip()
+    title = re.sub(r'[\\/*?:"<>|]',"",re.sub(r'[<>]',"",title).strip()).strip() #to prevent breaking the xhtml because it does
     try:
         if author[-1] == "?":
-            author = author.replace("?","qstnmrk")
+            author = author.replace("?","qstnmrk") #to prevent an empty name after the next regex that removes them
     except:
         author = "Unknown"
-    author_clean = re.sub(r'[\\/*?:"<>|]',"",author).strip()
+    author = re.sub(r'[\\/*?:"<>|]',"",author).strip()
     try:
-        if author_clean[-1] == ".":
-            author_clean = author_clean.replace(".","dot").strip()
+        if author[-1] == ".":
+            author = author.replace(".","dot").strip()
     except:
-        author_clean = "Unknown"
-    name = title_clean + " - " + author_clean
-    folder_name = name + "/"
-    folder_location = directory + folder_name
-    new_zip_name = folder_location.split("/")[-2]
-    output_location = directory+new_zip_name
-    final_location = output_location+".epub"
+        author = "Unknown"
+    final_location = directory + title + " - " + author + ".epub"
     return final_location
 
 def get_fiction_object(fiction_id):
