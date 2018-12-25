@@ -26,8 +26,7 @@ async def on_message(message):
                         print("It exists!")
                         msg = '{0.author.mention} Located Successfully!'.format(message)
                         await client.send_message(message.channel, msg)
-                        print("Uploading File")
-                        print(final_location)
+                        print("Uploading File {}".format(final_location))
                         await client.send_file(message.channel, final_location)
                         flag_upload = True
                     else:
