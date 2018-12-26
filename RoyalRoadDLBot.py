@@ -45,8 +45,9 @@ async def on_message(message):
                 msg = '{0.author.mention} There was an error! (No Fiction?)'.format(message)
                 await client.send_message(message.channel, msg)
         except:
+            print("Error with fiction name")
             flag_error = True
-            msg = '{0.author.mention} There was an error!'.format(message)
+            msg = '{0.author.mention} There was an error with the fiction name!'.format(message)
             await client.send_message(message.channel, msg)
         print(msg,flag_error,flag_upload)
         #await client.send_message(message.channel, msg)
@@ -77,8 +78,9 @@ async def on_message(message):
                 msg = '{0.author.mention} There was an error! (No Fiction?)'.format(message)
                 await client.send_message(message.channel, msg)
         except:
+            print("Error with fiction name")
             flag_error = True
-            msg = '{0.author.mention} There was an error!'.format(message)
+            msg = '{0.author.mention} There was an error with the fiction name!'.format(message)
             await client.send_message(message.channel, msg)
         print(msg,flag_error,flag_upload)
         #await client.send_message(message.channel, msg)
