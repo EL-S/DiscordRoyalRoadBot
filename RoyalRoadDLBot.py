@@ -37,7 +37,7 @@ async def on_message(message):
                 else:
                     print("Error")
                     flag_error = True
-                    msg = '{0.author.mention} There was no chapters!'.format(message)
+                    msg = '{0.author.mention} There is no chapters for that fiction!'.format(message)
                     await client.send_message(message.channel, msg)
             except:
                 print("Error")
@@ -70,7 +70,7 @@ async def on_message(message):
                 else:
                     print("Error")
                     flag_error = True
-                    msg = '{0.author.mention} There was no chapters!'.format(message)
+                    msg = '{0.author.mention} There is no chapters for that fiction!'.format(message)
                     await client.send_message(message.channel, msg)
             except:
                 print("Error")
