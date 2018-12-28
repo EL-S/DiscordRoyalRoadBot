@@ -87,7 +87,7 @@ async def on_message(message):
 
 @client.event
 async def on_ready():
-    print('Logged in as',client.user.name,'({})'.format(client.user.id))
+    print('RoyalRoadEpubCreator logged in as',client.user.name,'({})'.format(client.user.id))
     print('------')
 
 client.run('bot token')
