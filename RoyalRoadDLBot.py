@@ -25,7 +25,7 @@ async def on_message(message):
                     if os.path.exists(final_location):
                         print("It exists!")
                         title_name = final_location.split("/")[-1].replace(".epub","")
-                        msg = '{0.author.mention}'.format(message) + str('Located {} Successfully!'.format(title_name))
+                        msg = '{0.author.mention}'.format(message) + str(' Located ***{}*** Successfully!'.format(title_name))
                         await client.send_message(message.channel, msg)
                         print("Uploading File {}".format(final_location))
                         await client.send_file(message.channel, final_location)
@@ -64,7 +64,7 @@ async def on_message(message):
                 final_location = get_fiction(fiction_term,directory="Fiction - Epubs/")
                 if final_location != None:
                     title_name = final_location.split("/")[-1].replace(".epub","")
-                    msg = '{0.author.mention}'.format(message) + str('Downloaded {} Successfully!'.format(title_name))
+                    msg = '{0.author.mention}'.format(message) + str(' Downloaded ***{}*** Successfully!'.format(title_name))
                     await client.send_message(message.channel, msg)
                     print("Uploading File {}".format(final_location))
                     await client.send_file(message.channel, final_location)
