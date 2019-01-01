@@ -24,10 +24,10 @@ async def on_message(message):
                     print(final_location)
                     if os.path.exists(final_location):
                         print("It exists!")
-                        msg = '{0.author.mention} Located Successfully!'.format(message)
+                        title_name = final_location.split("/")[-1].replace(".epub","")
+                        msg = '{0.author.mention}'.format(message) + str(' Located ***{}*** Successfully!'.format(title_name))
                         await client.send_message(message.channel, msg)
-                        print("Uploading File")
-                        print(final_location)
+                        print("Uploading File {}".format(final_location))
                         await client.send_file(message.channel, final_location)
                         flag_upload = True
                     else:
@@ -38,7 +38,7 @@ async def on_message(message):
                 else:
                     print("Error")
                     flag_error = True
-                    msg = '{0.author.mention} There was no chapters!'.format(message)
+                    msg = '{0.author.mention} There are no chapters for that fiction!'.format(message)
                     await client.send_message(message.channel, msg)
             except:
                 print("Error")
@@ -46,8 +46,9 @@ async def on_message(message):
                 msg = '{0.author.mention} There was an error! (No Fiction?)'.format(message)
                 await client.send_message(message.channel, msg)
         except:
+            print("Error with fiction name")
             flag_error = True
-            msg = '{0.author.mention} There was an error!'.format(message)
+            msg = '{0.author.mention} There was an error with the fiction name!'.format(message)
             await client.send_message(message.channel, msg)
         print(msg,flag_error,flag_upload)
         #await client.send_message(message.channel, msg)
@@ -62,16 +63,16 @@ async def on_message(message):
                 await client.send_message(message.channel, msg)
                 final_location = get_fiction(fiction_term,directory="Fiction - Epubs/")
                 if final_location != None:
-                    msg = '{0.author.mention} Downloaded Successfully!'.format(message)
+                    title_name = final_location.split("/")[-1].replace(".epub","")
+                    msg = '{0.author.mention}'.format(message) + str(' Downloaded ***{}*** Successfully!'.format(title_name))
                     await client.send_message(message.channel, msg)
-                    print("Uploading File")
-                    print(final_location)
+                    print("Uploading File {}".format(final_location))
                     await client.send_file(message.channel, final_location)
                     flag_upload = True
                 else:
                     print("Error")
                     flag_error = True
-                    msg = '{0.author.mention} There was no chapters!'.format(message)
+                    msg = '{0.author.mention} There are no chapters for that fiction!'.format(message)
                     await client.send_message(message.channel, msg)
             except:
                 print("Error")
@@ -79,15 +80,16 @@ async def on_message(message):
                 msg = '{0.author.mention} There was an error! (No Fiction?)'.format(message)
                 await client.send_message(message.channel, msg)
         except:
+            print("Error with fiction name")
             flag_error = True
-            msg = '{0.author.mention} There was an error!'.format(message)
+            msg = '{0.author.mention} There was an error with the fiction name!'.format(message)
             await client.send_message(message.channel, msg)
         print(msg,flag_error,flag_upload)
         #await client.send_message(message.channel, msg)
 
 @client.event
 async def on_ready():
-    print('Logged in as',client.user.name,'({})'.format(client.user.id))
+    print('RoyalRoadEpubCreator logged in as',client.user.name,'({})'.format(client.user.id))
     print('------')
 
 client.run('bot token')
