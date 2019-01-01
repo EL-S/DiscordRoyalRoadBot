@@ -1,8 +1,34 @@
 import discord
 from royalroadlapi import *
 import os
+from gtts import gTTS
+import simpleaudio as sa
+from pydub import AudioSegment
+from random import randint
+import logging
+import asyncio
 
+logger = logging.getLogger('discord')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 client = discord.Client()
+
+async def download_fiction_async(message,fiction_term):
+    final_location = get_fiction(fiction_term,directory="Fiction - Epubs/")
+    if final_location != None:
+        title_name = final_location.split("/")[-1].replace(".epub","")
+        msg = '{0.author.mention}'.format(message) + str(' Downloaded ***{}*** Successfully!'.format(title_name))
+        await client.send_message(message.channel, msg)
+        print("Uploading File {}".format(final_location))
+        await client.send_file(message.channel, final_location)
+        flag_upload = True
+    else:
+        print("Error")
+        flag_error = True
+        msg = '{0.author.mention} There are no chapters for that fiction!'.format(message)
+        await client.send_message(message.channel, msg)
 
 @client.event
 async def on_message(message):
@@ -61,21 +87,12 @@ async def on_message(message):
             try:
                 msg = '{0.author.mention} Searching now!'.format(message)
                 await client.send_message(message.channel, msg)
-                final_location = get_fiction(fiction_term,directory="Fiction - Epubs/")
-                if final_location != None:
-                    title_name = final_location.split("/")[-1].replace(".epub","")
-                    msg = '{0.author.mention}'.format(message) + str(' Downloaded ***{}*** Successfully!'.format(title_name))
-                    await client.send_message(message.channel, msg)
-                    print("Uploading File {}".format(final_location))
-                    await client.send_file(message.channel, final_location)
-                    flag_upload = True
-                else:
-                    print("Error")
-                    flag_error = True
-                    msg = '{0.author.mention} There are no chapters for that fiction!'.format(message)
-                    await client.send_message(message.channel, msg)
-            except:
-                print("Error")
+                #here
+                loop = asyncio.get_event_loop()
+                task = loop.create_task(download_fiction_async(message,fiction_term))
+                await task
+            except Exception as e:
+                print("Error",e)
                 flag_error = True
                 msg = '{0.author.mention} There was an error! (No Fiction?)'.format(message)
                 await client.send_message(message.channel, msg)
@@ -92,4 +109,4 @@ async def on_ready():
     print('RoyalRoadEpubCreator logged in as',client.user.name,'({})'.format(client.user.id))
     print('------')
 
-client.run('bot token')
+client.run("bot token")
