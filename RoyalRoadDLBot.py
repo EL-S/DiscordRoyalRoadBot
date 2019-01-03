@@ -15,8 +15,8 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 client = discord.Client()
 
-async def download_fiction_async(message,fiction_term):
-    final_location = get_fiction(fiction_term,directory="Fiction - Epubs/")
+async def download_fiction_async(message,fiction_term,start_chapter="start",end_chapter="end"):
+    final_location = get_fiction(fiction_term,directory="Fiction - Epubs/",start_chapter=start_chapter,end_chapter=end_chapter)
     if final_location != None:
         title_name = final_location.split("/")[-1].replace(".epub","")
         msg = '{0.author.mention}'.format(message) + str(' Downloaded ***{}*** Successfully!'.format(title_name))
@@ -27,7 +27,7 @@ async def download_fiction_async(message,fiction_term):
     else:
         print("Error")
         flag_error = True
-        msg = '{0.author.mention} There are no chapters for that fiction!'.format(message)
+        msg = '{0.author.mention} There are no chapters for that fiction (or maybe in that range)!'.format(message)
         await client.send_message(message.channel, msg)
 
 @client.event
@@ -43,9 +43,39 @@ async def on_message(message):
         try:
             fiction_term = " ".join(message.content.split(" ")[1:])
             try:
+                chapters = " ".join(message.content.split(" ")[-1:]) #don't include the other stuff
+                try:
+                    temp = " ".join(message.content.split(" ")[-2:-1])
+                    if temp == "!req":
+                        end_chapter = "end"
+                        start_chapter = "start"
+                        end_chapter_flag = False
+                        start_chapter_flag = False
+                    else:    
+                        chapters = chapters.split("-")
+                        try:
+                            end_chapter = int(chapters[1])
+                            end_chapter_flag = True
+                        except:
+                            end_chapter_flag = False
+                            end_chapter = "end"
+                        try:
+                            start_chapter = int(chapters[0])
+                            start_chapter_flag = True
+                        except:
+                            start_chapter = "start"
+                            start_chapter_flag = False
+                        if end_chapter_flag or start_chapter_flag:
+                            fiction_term = " ".join(fiction_term.split(" ")[:-1])
+                except:
+                    end_chapter = "end"
+                    start_chapter = "start"
+            except:
+                print("oops")
+            try:
                 msg = '{0.author.mention} Searching now!'.format(message)
                 await client.send_message(message.channel, msg)
-                final_location = get_fiction_location(fiction_term,directory="Fiction - Epubs/")
+                final_location = get_fiction_location(fiction_term,directory="Fiction - Epubs/",start_chapter=start_chapter,end_chapter=end_chapter)
                 if final_location != None:
                     print(final_location)
                     if os.path.exists(final_location):
@@ -85,11 +115,43 @@ async def on_message(message):
         try:
             fiction_term = " ".join(message.content.split(" ")[1:])
             try:
+                chapters = " ".join(message.content.split(" ")[-1:]) #don't include the other stuff
+                try:
+                    temp = " ".join(message.content.split(" ")[-2:-1])
+                    if temp == "!req":
+                        end_chapter = "end"
+                        start_chapter = "start"
+                        end_chapter_flag = False
+                        start_chapter_flag = False
+                    else:
+                        if chapters == "-": #when someone tries to use an empty range for some reason
+                            chapters = "1"
+                        chapters = chapters.split("-")
+                        try:
+                            end_chapter = int(chapters[1])
+                            end_chapter_flag = True
+                        except:
+                            end_chapter_flag = False
+                            end_chapter = "end"
+                        try:
+                            start_chapter = int(chapters[0])
+                            start_chapter_flag = True
+                        except:
+                            start_chapter = "start"
+                            start_chapter_flag = False
+                        if end_chapter_flag or start_chapter_flag:
+                            fiction_term = " ".join(fiction_term.split(" ")[:-1]) #remove chapter range from search term
+                except:
+                    end_chapter = "end"
+                    start_chapter = "start"
+            except:
+                print("oops")
+            try:
                 msg = '{0.author.mention} Searching now!'.format(message)
                 await client.send_message(message.channel, msg)
                 #here
                 loop = asyncio.get_event_loop()
-                task = loop.create_task(download_fiction_async(message,fiction_term))
+                task = loop.create_task(download_fiction_async(message,fiction_term,start_chapter,end_chapter))
                 await task
             except Exception as e:
                 print("Error",e)
