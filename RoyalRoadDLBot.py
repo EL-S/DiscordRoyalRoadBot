@@ -8,6 +8,9 @@ from random import randint
 import logging
 import asyncio
 
+# remove old dependencies
+# change discord.py ti new version
+
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
