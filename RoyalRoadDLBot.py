@@ -1,9 +1,6 @@
 import discord
 from royalroadlapi import *
 import os
-from gtts import gTTS
-import simpleaudio as sa
-from pydub import AudioSegment
 from random import randint
 import logging
 import asyncio
@@ -20,15 +17,15 @@ async def download_fiction_async(message,fiction_term,start_chapter="start",end_
     if final_location != None:
         title_name = final_location.split("/")[-1].replace(".epub","")
         msg = '{0.author.mention}'.format(message) + str(' Downloaded ***{}*** Successfully!'.format(title_name))
-        await client.send_message(message.channel, msg)
+        await message.channel.send(msg)
         print("Uploading File {}".format(final_location))
-        await client.send_file(message.channel, final_location)
+        await message.channel.send(file=discord.File(final_location))
         flag_upload = True
     else:
         print("Error")
         flag_error = True
         msg = '{0.author.mention} There are no chapters for that fiction (or maybe in that range)!'.format(message)
-        await client.send_message(message.channel, msg)
+        await message.channel.send(msg)
 
 @client.event
 async def on_message(message):
@@ -74,7 +71,7 @@ async def on_message(message):
                 print("oops")
             try:
                 msg = '{0.author.mention} Searching now!'.format(message)
-                await client.send_message(message.channel, msg)
+                await message.channel.send(msg)
                 final_location = get_fiction_location(fiction_term,directory="Fiction - Epubs/",start_chapter=start_chapter,end_chapter=end_chapter)
                 if final_location != None:
                     print(final_location)
@@ -82,30 +79,30 @@ async def on_message(message):
                         print("It exists!")
                         title_name = final_location.split("/")[-1].replace(".epub","")
                         msg = '{0.author.mention}'.format(message) + str(' Located ***{}*** Successfully!'.format(title_name))
-                        await client.send_message(message.channel, msg)
+                        await message.channel.send(msg)
                         print("Uploading File {}".format(final_location))
-                        await client.send_file(message.channel, final_location)
+                        await message.channel.send(final_location)
                         flag_upload = True
                     else:
                         print("It doesn't exist!")
                         msg = '{0.author.mention} That isn\'t cached!'.format(message)
-                        await client.send_message(message.channel, msg)
+                        await message.channel.send(msg)
                     
                 else:
                     print("Error")
                     flag_error = True
                     msg = '{0.author.mention} There are no chapters for that fiction!'.format(message)
-                    await client.send_message(message.channel, msg)
+                    await message.channel.send(msg)
             except:
                 print("Error")
                 flag_error = True
                 msg = '{0.author.mention} There was an error! (No Fiction?)'.format(message)
-                await client.send_message(message.channel, msg)
+                await message.channel.send(msg)
         except:
             print("Error with fiction name")
             flag_error = True
             msg = '{0.author.mention} There was an error with the fiction name!'.format(message)
-            await client.send_message(message.channel, msg)
+            await message.channel.send(msg)
         print(msg,flag_error,flag_upload)
         #await client.send_message(message.channel, msg)
     elif message.content.startswith('!req'):
@@ -148,7 +145,7 @@ async def on_message(message):
                 print("oops")
             try:
                 msg = '{0.author.mention} Searching now!'.format(message)
-                await client.send_message(message.channel, msg)
+                await message.channel.send(msg)
                 #here
                 loop = asyncio.get_event_loop()
                 task = loop.create_task(download_fiction_async(message,fiction_term,start_chapter,end_chapter))
@@ -157,12 +154,12 @@ async def on_message(message):
                 print("Error",e)
                 flag_error = True
                 msg = '{0.author.mention} There was an error! (No Fiction?)'.format(message)
-                await client.send_message(message.channel, msg)
+                await message.channel.send(msg)
         except:
             print("Error with fiction name")
             flag_error = True
             msg = '{0.author.mention} There was an error with the fiction name!'.format(message)
-            await client.send_message(message.channel, msg)
+            await message.channel.send(msg)
         print(msg,flag_error,flag_upload)
         #await client.send_message(message.channel, msg)
 
