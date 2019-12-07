@@ -6,7 +6,7 @@ import logging
 import asyncio
 
 # remove old dependencies
-# change discord.py ti new version
+# change discord.py to new version
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
